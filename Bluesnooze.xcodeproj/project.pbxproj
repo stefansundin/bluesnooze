@@ -3,41 +3,16 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		4F229ABE243CC29500B1784C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F229ABD243CC29500B1784C /* AppDelegate.swift */; };
 		4F229AC0243CC29600B1784C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F229ABF243CC29600B1784C /* Assets.xcassets */; };
 		4F229AC3243CC29600B1784C /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F229AC1243CC29600B1784C /* MainMenu.xib */; };
-		4FDC9C13243DCC0300FB0C4E /* LaunchAtLogin.framework.dSYM in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4FDC9C12243DCC0300FB0C4E /* LaunchAtLogin.framework.dSYM */; };
-		4FDC9C14243DCC6B00FB0C4E /* LaunchAtLogin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FDC9C0E243DCB7B00FB0C4E /* LaunchAtLogin.framework */; };
-		4FDC9C15243DCC6B00FB0C4E /* LaunchAtLogin.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4FDC9C0E243DCB7B00FB0C4E /* LaunchAtLogin.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F874ADB628A9A3E700B7489B /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = F874ADB528A9A3E700B7489B /* LaunchAtLogin */; };
+		F8A11C7728A9A4C5003A156B /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = F8A11C7628A9A4C5003A156B /* LaunchAtLogin */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		4FDC9C0C243DCB0B00FB0C4E /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 16;
-			files = (
-				4FDC9C13243DCC0300FB0C4E /* LaunchAtLogin.framework.dSYM in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4FDC9C16243DCC6B00FB0C4E /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				4FDC9C15243DCC6B00FB0C4E /* LaunchAtLogin.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		4F229ABA243CC29500B1784C /* Bluesnooze.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Bluesnooze.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -47,8 +22,6 @@
 		4F229AC4243CC29600B1784C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4F229AC5243CC29600B1784C /* Bluesnooze.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Bluesnooze.entitlements; sourceTree = "<group>"; };
 		4F229ACB243CC72800B1784C /* Bluesnooze-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Bluesnooze-Bridging-Header.h"; sourceTree = "<group>"; };
-		4FDC9C0E243DCB7B00FB0C4E /* LaunchAtLogin.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LaunchAtLogin.framework; path = Carthage/Build/Mac/LaunchAtLogin.framework; sourceTree = "<group>"; };
-		4FDC9C12243DCC0300FB0C4E /* LaunchAtLogin.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; name = LaunchAtLogin.framework.dSYM; path = Carthage/Build/Mac/LaunchAtLogin.framework.dSYM; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,7 +29,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FDC9C14243DCC6B00FB0C4E /* LaunchAtLogin.framework in Frameworks */,
+				F8A11C7728A9A4C5003A156B /* LaunchAtLogin in Frameworks */,
+				F874ADB628A9A3E700B7489B /* LaunchAtLogin in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -96,8 +70,6 @@
 		4FDC9C0D243DCB7B00FB0C4E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				4FDC9C12243DCC0300FB0C4E /* LaunchAtLogin.framework.dSYM */,
-				4FDC9C0E243DCB7B00FB0C4E /* LaunchAtLogin.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -113,15 +85,18 @@
 				4F229AB6243CC29500B1784C /* Sources */,
 				4F229AB7243CC29500B1784C /* Frameworks */,
 				4F229AB8243CC29500B1784C /* Resources */,
-				4FDC9C0C243DCB0B00FB0C4E /* CopyFiles */,
-				4FDC9C16243DCC6B00FB0C4E /* Embed Frameworks */,
-				4FDC9C11243DCBD700FB0C4E /* ShellScript */,
+				4FDC9C11243DCBD700FB0C4E /* Run Script */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				F874ADB328A9A39400B7489B /* PBXTargetDependency */,
 			);
 			name = Bluesnooze;
+			packageProductDependencies = (
+				F874ADB528A9A3E700B7489B /* LaunchAtLogin */,
+				F8A11C7628A9A4C5003A156B /* LaunchAtLogin */,
+			);
 			productName = Bluesnooze;
 			productReference = 4F229ABA243CC29500B1784C /* Bluesnooze.app */;
 			productType = "com.apple.product-type.application";
@@ -151,6 +126,10 @@
 				Base,
 			);
 			mainGroup = 4F229AB1243CC29500B1784C;
+			packageReferences = (
+				F89A537F28A87B3C005E9DC2 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */,
+				F8A11C7528A9A4C5003A156B /* XCRemoteSwiftPackageReference "LaunchAtLogin" */,
+			);
 			productRefGroup = 4F229ABB243CC29500B1784C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -190,7 +169,7 @@
 			shellPath = /bin/sh;
 			shellScript = "if which swiftlint >/dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
 		};
-		4FDC9C11243DCBD700FB0C4E /* ShellScript */ = {
+		4FDC9C11243DCBD700FB0C4E /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -199,13 +178,14 @@
 			);
 			inputPaths = (
 			);
+			name = "Run Script";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PROJECT_DIR}/Carthage/Build/Mac/LaunchAtLogin.framework/Resources/copy-helper.sh\"\n";
+			shellScript = "exec \"${BUILT_PRODUCTS_DIR}/LaunchAtLogin_LaunchAtLogin.bundle/Contents/Resources/copy-helper-swiftpm.sh\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -219,6 +199,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F874ADB328A9A39400B7489B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = F874ADB228A9A39400B7489B /* LaunchAtLogin */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		4F229AC1243CC29600B1784C /* MainMenu.xib */ = {
@@ -353,20 +340,18 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Bluesnooze/Bluesnooze.entitlements;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 7X3FR535W8;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Bluesnooze/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.oliverpeate.Bluesnooze;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Bluesnooze/Bluesnooze-Bridging-Header.h";
@@ -381,20 +366,18 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Bluesnooze/Bluesnooze.entitlements;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 7X3FR535W8;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Bluesnooze/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.oliverpeate.Bluesnooze;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Bluesnooze/Bluesnooze-Bridging-Header.h";
@@ -424,6 +407,43 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F89A537F28A87B3C005E9DC2 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sindresorhus/LaunchAtLogin";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+		F8A11C7528A9A4C5003A156B /* XCRemoteSwiftPackageReference "LaunchAtLogin" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sindresorhus/LaunchAtLogin";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F874ADB228A9A39400B7489B /* LaunchAtLogin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F89A537F28A87B3C005E9DC2 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */;
+			productName = LaunchAtLogin;
+		};
+		F874ADB528A9A3E700B7489B /* LaunchAtLogin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F89A537F28A87B3C005E9DC2 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */;
+			productName = LaunchAtLogin;
+		};
+		F8A11C7628A9A4C5003A156B /* LaunchAtLogin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F89A537F28A87B3C005E9DC2 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */;
+			productName = LaunchAtLogin;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4F229AB2243CC29500B1784C /* Project object */;
 }
