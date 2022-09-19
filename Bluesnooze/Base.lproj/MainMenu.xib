@@ -14,10 +14,11 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="Bluesnooze" customModuleProvider="target">
             <connections>
-                <outlet property="onPowerUpActionRemember" destination="mBz-mB-SAw" id="dpV-qb-pVO"/>
+                <outlet property="hideIconMenuItem" destination="iTh-xc-apd" id="koh-Zf-4sN"/>
+                <outlet property="launchAtLoginMenuItem" destination="I9E-pI-lLm" id="DFX-bS-N3m"/>
                 <outlet property="onPowerUpActionAlways" destination="k9U-YJ-Qra" id="iPK-GH-kd9"/>
                 <outlet property="onPowerUpActionNever" destination="wwz-8o-dOW" id="kwY-c8-qPz"/>
-                <outlet property="launchAtLoginMenuItem" destination="I9E-pI-lLm" id="DFX-bS-N3m"/>
+                <outlet property="onPowerUpActionRemember" destination="mBz-mB-SAw" id="dpV-qb-pVO"/>
                 <outlet property="statusMenu" destination="AEO-aA-1fp" id="ueI-UR-7ba"/>
             </connections>
         </customObject>

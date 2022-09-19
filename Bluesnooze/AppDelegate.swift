@@ -18,13 +18,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet weak var onPowerUpActionAlways: NSMenuItem!
     @IBOutlet weak var onPowerUpActionNever: NSMenuItem!
     @IBOutlet weak var launchAtLoginMenuItem: NSMenuItem!
+    @IBOutlet weak var hideIconMenuItem: NSMenuItem!
 
-    private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+    private var statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     private var prevState: Int32 = IOBluetoothPreferenceGetControllerPowerState()
     private var onPowerUpAction: String = "remember"
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        initStatusItem()
+        if UserDefaults.standard.bool(forKey: "hideIcon") {
+            hideIconMenuItem.state = NSControl.StateValue.on
+        } else {
+            initStatusItem()
+        }
         setLaunchAtLoginState()
         setupNotificationHandlers()
         if let action = UserDefaults.standard.string(forKey: "onPowerUpAction") {
@@ -37,6 +42,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         } else if onPowerUpAction == "never" {
             onPowerUpActionNever.state = NSControl.StateValue.on
         }
+    }
+
+    // Re-add the status bar icon when the app is launched a second time
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        initStatusItem()
+        return true
     }
 
     // MARK: Click handlers
@@ -71,8 +83,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @IBAction func hideIconClicked(_ sender: NSMenuItem) {
-        UserDefaults.standard.set(true, forKey: "hideIcon")
-        statusItem.statusBar?.removeStatusItem(statusItem)
+        if UserDefaults.standard.bool(forKey: "hideIcon") {
+            UserDefaults.standard.removeObject(forKey: "hideIcon")
+            hideIconMenuItem.state = NSControl.StateValue.off
+        } else {
+            UserDefaults.standard.set(true, forKey: "hideIcon")
+            hideIconMenuItem.state = NSControl.StateValue.on
+            statusItem.statusBar?.removeStatusItem(statusItem)
+        }
     }
 
     @IBAction func quitClicked(_ sender: NSMenuItem) {
@@ -109,10 +127,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: UI state
 
     private func initStatusItem() {
-        if UserDefaults.standard.bool(forKey: "hideIcon") {
-            return
-        }
-
         if let icon = NSImage(named: "bluesnooze") {
             icon.isTemplate = true
             statusItem.button?.image = icon
