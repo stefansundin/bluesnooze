@@ -25,23 +25,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var onPowerUpAction: String = "remember"
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        if UserDefaults.standard.bool(forKey: "hideIcon") {
-            hideIconMenuItem.state = NSControl.StateValue.on
-        } else {
+        if !UserDefaults.standard.bool(forKey: "hideIcon") {
             initStatusItem()
         }
-        setLaunchAtLoginState()
         setupNotificationHandlers()
-        if let action = UserDefaults.standard.string(forKey: "onPowerUpAction") {
-            onPowerUpAction = action
-        }
-        if onPowerUpAction == "remember" {
-            onPowerUpActionRemember.state = NSControl.StateValue.on
-        } else if onPowerUpAction == "always" {
-            onPowerUpActionAlways.state = NSControl.StateValue.on
-        } else if onPowerUpAction == "never" {
-            onPowerUpActionNever.state = NSControl.StateValue.on
-        }
+        syncSettings()
     }
 
     // Re-add the status bar icon when the app is launched a second time
@@ -54,32 +42,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: Click handlers
 
     @IBAction func onPowerUpActionRememberClicked(_ sender: NSMenuItem) {
-        onPowerUpAction = "remember"
-        UserDefaults.standard.set(onPowerUpAction, forKey: "onPowerUpAction")
-        onPowerUpActionRemember.state = NSControl.StateValue.on
-        onPowerUpActionAlways.state = NSControl.StateValue.off
-        onPowerUpActionNever.state = NSControl.StateValue.off
+        UserDefaults.standard.set("remember", forKey: "onPowerUpAction")
+        syncSettings()
     }
 
     @IBAction func onPowerUpActionAlwaysClicked(_ sender: NSMenuItem) {
-        onPowerUpAction = "always"
-        UserDefaults.standard.set(onPowerUpAction, forKey: "onPowerUpAction")
-        onPowerUpActionRemember.state = NSControl.StateValue.off
-        onPowerUpActionAlways.state = NSControl.StateValue.on
-        onPowerUpActionNever.state = NSControl.StateValue.off
+        UserDefaults.standard.set("always", forKey: "onPowerUpAction")
+        syncSettings()
     }
 
     @IBAction func onPowerUpActionNeverClicked(_ sender: NSMenuItem) {
-        onPowerUpAction = "never"
-        UserDefaults.standard.set(onPowerUpAction, forKey: "onPowerUpAction")
-        onPowerUpActionRemember.state = NSControl.StateValue.off
-        onPowerUpActionAlways.state = NSControl.StateValue.off
-        onPowerUpActionNever.state = NSControl.StateValue.on
+        UserDefaults.standard.set("never", forKey: "onPowerUpAction")
+        syncSettings()
     }
 
     @IBAction func launchAtLoginClicked(_ sender: NSMenuItem) {
         LaunchAtLogin.isEnabled = !LaunchAtLogin.isEnabled
-        setLaunchAtLoginState()
+        syncSettings()
     }
 
     @IBAction func hideIconClicked(_ sender: NSMenuItem) {
@@ -136,8 +115,30 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem.menu = statusMenu
     }
 
-    private func setLaunchAtLoginState() {
-        let state = LaunchAtLogin.isEnabled ? NSControl.StateValue.on : NSControl.StateValue.off
-        launchAtLoginMenuItem.state = state
+    private func syncSettings() {
+        // Start Bluetooth on wake
+        onPowerUpActionRemember.state = NSControl.StateValue.off
+        onPowerUpActionAlways.state = NSControl.StateValue.off
+        onPowerUpActionNever.state = NSControl.StateValue.off
+        if let action = UserDefaults.standard.string(forKey: "onPowerUpAction") {
+            onPowerUpAction = action
+        }
+        if onPowerUpAction == "remember" {
+            onPowerUpActionRemember.state = NSControl.StateValue.on
+        } else if onPowerUpAction == "always" {
+            onPowerUpActionAlways.state = NSControl.StateValue.on
+        } else if onPowerUpAction == "never" {
+            onPowerUpActionNever.state = NSControl.StateValue.on
+        }
+
+        // Launch at login
+        launchAtLoginMenuItem.state = boolToMenuState(v: LaunchAtLogin.isEnabled)
+
+        // Hide icon
+        hideIconMenuItem.state = boolToMenuState(v: UserDefaults.standard.bool(forKey: "hideIcon"))
+    }
+
+    private func boolToMenuState(v: Bool) -> NSControl.StateValue {
+        return v ? NSControl.StateValue.on : NSControl.StateValue.off
     }
 }
