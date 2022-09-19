@@ -10,7 +10,6 @@
 		4F229ABE243CC29500B1784C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F229ABD243CC29500B1784C /* AppDelegate.swift */; };
 		4F229AC0243CC29600B1784C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F229ABF243CC29600B1784C /* Assets.xcassets */; };
 		4F229AC3243CC29600B1784C /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F229AC1243CC29600B1784C /* MainMenu.xib */; };
-		F874ADB628A9A3E700B7489B /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = F874ADB528A9A3E700B7489B /* LaunchAtLogin */; };
 		F8A11C7728A9A4C5003A156B /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = F8A11C7628A9A4C5003A156B /* LaunchAtLogin */; };
 /* End PBXBuildFile section */
 
@@ -30,7 +29,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				F8A11C7728A9A4C5003A156B /* LaunchAtLogin in Frameworks */,
-				F874ADB628A9A3E700B7489B /* LaunchAtLogin in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -94,7 +92,6 @@
 			);
 			name = Bluesnooze;
 			packageProductDependencies = (
-				F874ADB528A9A3E700B7489B /* LaunchAtLogin */,
 				F8A11C7628A9A4C5003A156B /* LaunchAtLogin */,
 			);
 			productName = Bluesnooze;
@@ -128,7 +125,6 @@
 			mainGroup = 4F229AB1243CC29500B1784C;
 			packageReferences = (
 				F89A537F28A87B3C005E9DC2 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */,
-				F8A11C7528A9A4C5003A156B /* XCRemoteSwiftPackageReference "LaunchAtLogin" */,
 			);
 			productRefGroup = 4F229ABB243CC29500B1784C /* Products */;
 			projectDirPath = "";
@@ -270,7 +266,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -325,7 +321,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
@@ -343,7 +339,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = H3K67P57A4;
 				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Bluesnooze/Info.plist;
@@ -351,7 +347,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.oliverpeate.Bluesnooze;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Bluesnooze/Bluesnooze-Bridging-Header.h";
@@ -369,7 +366,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = H3K67P57A4;
 				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Bluesnooze/Info.plist;
@@ -377,7 +374,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.oliverpeate.Bluesnooze;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Bluesnooze/Bluesnooze-Bridging-Header.h";
@@ -417,23 +415,10 @@
 				kind = branch;
 			};
 		};
-		F8A11C7528A9A4C5003A156B /* XCRemoteSwiftPackageReference "LaunchAtLogin" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sindresorhus/LaunchAtLogin";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		F874ADB228A9A39400B7489B /* LaunchAtLogin */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F89A537F28A87B3C005E9DC2 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */;
-			productName = LaunchAtLogin;
-		};
-		F874ADB528A9A3E700B7489B /* LaunchAtLogin */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F89A537F28A87B3C005E9DC2 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */;
 			productName = LaunchAtLogin;
