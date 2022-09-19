@@ -41,6 +41,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: Click handlers
 
+    @IBAction func handleMenuOpen(_ sender: NSMenu) {
+        syncSettings()
+        statusItem.popUpMenu(statusMenu)
+    }
+
     @IBAction func onPowerUpActionRememberClicked(_ sender: NSMenuItem) {
         UserDefaults.standard.set("remember", forKey: "onPowerUpAction")
         syncSettings()
@@ -112,7 +117,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         } else {
             statusItem.button?.title = "Bluesnooze"
         }
-        statusItem.menu = statusMenu
+        statusItem.button?.action = #selector(handleMenuOpen(_:))
     }
 
     private func syncSettings() {
