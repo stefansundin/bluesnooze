@@ -10,8 +10,6 @@ import Cocoa
 import IOBluetooth
 import LaunchAtLogin
 
-let onPowerUpActionKey = "onPowerUpAction"
-
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
@@ -29,10 +27,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         initStatusItem()
         setLaunchAtLoginState()
         setupNotificationHandlers()
-        UserDefaults.standard.register(defaults: [
-            onPowerUpActionKey: "remember",
-        ])
-        if let action = UserDefaults.standard.string(forKey: onPowerUpActionKey) {
+        if let action = UserDefaults.standard.string(forKey: "onPowerUpAction") {
             onPowerUpAction = action
         }
         if onPowerUpAction == "remember" {
@@ -48,7 +43,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @IBAction func onPowerUpActionRememberClicked(_ sender: NSMenuItem) {
         onPowerUpAction = "remember"
-        UserDefaults.standard.set(onPowerUpAction, forKey: onPowerUpActionKey)
+        UserDefaults.standard.set(onPowerUpAction, forKey: "onPowerUpAction")
         onPowerUpActionRemember.state = NSControl.StateValue.on
         onPowerUpActionAlways.state = NSControl.StateValue.off
         onPowerUpActionNever.state = NSControl.StateValue.off
@@ -56,7 +51,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @IBAction func onPowerUpActionAlwaysClicked(_ sender: NSMenuItem) {
         onPowerUpAction = "always"
-        UserDefaults.standard.set(onPowerUpAction, forKey: onPowerUpActionKey)
+        UserDefaults.standard.set(onPowerUpAction, forKey: "onPowerUpAction")
         onPowerUpActionRemember.state = NSControl.StateValue.off
         onPowerUpActionAlways.state = NSControl.StateValue.on
         onPowerUpActionNever.state = NSControl.StateValue.off
@@ -64,7 +59,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @IBAction func onPowerUpActionNeverClicked(_ sender: NSMenuItem) {
         onPowerUpAction = "never"
-        UserDefaults.standard.set(onPowerUpAction, forKey: onPowerUpActionKey)
+        UserDefaults.standard.set(onPowerUpAction, forKey: "onPowerUpAction")
         onPowerUpActionRemember.state = NSControl.StateValue.off
         onPowerUpActionAlways.state = NSControl.StateValue.off
         onPowerUpActionNever.state = NSControl.StateValue.on
