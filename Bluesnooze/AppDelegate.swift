@@ -71,6 +71,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             UserDefaults.standard.removeObject(forKey: "hideIcon")
             hideIconMenuItem.state = NSControl.StateValue.off
         } else {
+            // Show a tip on how to get the icon back
+            let alert = NSAlert()
+            alert.messageText = "Important information"
+            alert.informativeText = "Launch the app a second time to show the icon again."
+            alert.alertStyle = NSAlert.Style.informational
+            alert.addButton(withTitle: "OK")
+            alert.addButton(withTitle: "Cancel")
+            if alert.runModal() == NSApplication.ModalResponse.alertSecondButtonReturn {
+                return
+            }
+            // Hide the icon
             UserDefaults.standard.set(true, forKey: "hideIcon")
             hideIconMenuItem.state = NSControl.StateValue.on
             statusItem.statusBar?.removeStatusItem(statusItem)
