@@ -16,7 +16,7 @@ With Bluesnooze the Bluetooth connection is switched off when your Mac sleeps, a
 
 ## Installation
 
-Minimum macOS version: 10.12
+Minimum macOS version: 10.13 (use [older version](https://github.com/stefansundin/bluesnooze/releases/tag/v1.3) for 10.12)
 
 1. Download `Bluesnooze.zip` from the [latest release][download-latest].
 1. In Finder, open `Bluesnooze.zip` in your `Downloads` directory.

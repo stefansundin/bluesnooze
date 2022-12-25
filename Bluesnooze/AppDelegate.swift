@@ -25,6 +25,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var onPowerUpAction: String = "remember"
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        LaunchAtLogin.migrateIfNeeded() // Migrate to macOS 13 API (https://github.com/sindresorhus/LaunchAtLogin/releases/tag/v5.0.0)
         if !UserDefaults.standard.bool(forKey: "hideIcon") {
             initStatusItem()
         }
