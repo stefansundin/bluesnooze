@@ -38,11 +38,15 @@ The application settings can be modified using the `defaults` command.
 # read settings:
 defaults read com.oliverpeate.Bluesnooze disableBluetoothOnPowerDown
 defaults read com.oliverpeate.Bluesnooze bluetoothActionOnScreenUnlock
+defaults read com.oliverpeate.Bluesnooze disableWifiOnPowerDown
+defaults read com.oliverpeate.Bluesnooze wifiActionOnScreenUnlock
 defaults read com.oliverpeate.Bluesnooze hideIcon
 
 # update settings:
 defaults write com.oliverpeate.Bluesnooze disableBluetoothOnPowerDown -bool false
 defaults write com.oliverpeate.Bluesnooze bluetoothActionOnScreenUnlock -string enable
+defaults write com.oliverpeate.Bluesnooze disableWifiOnPowerDown -bool true
+defaults write com.oliverpeate.Bluesnooze wifiActionOnScreenUnlock -string restore
 defaults write com.oliverpeate.Bluesnooze hideIcon -bool true
 
 # delete settings: (this resets everything to defaults)

@@ -9,6 +9,7 @@
 import Cocoa
 import IOBluetooth
 import LaunchAtLogin
+import CoreWLAN
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -18,11 +19,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet weak var bluetoothActionOnScreenUnlockRestore: NSMenuItem!
     @IBOutlet weak var bluetoothActionOnScreenUnlockEnable: NSMenuItem!
     @IBOutlet weak var bluetoothActionOnScreenUnlockNothing: NSMenuItem!
+    @IBOutlet weak var disableWifiOnPowerDownMenuItem: NSMenuItem!
+    @IBOutlet weak var wifiActionOnScreenUnlockRestore: NSMenuItem!
+    @IBOutlet weak var wifiActionOnScreenUnlockEnable: NSMenuItem!
+    @IBOutlet weak var wifiActionOnScreenUnlockNothing: NSMenuItem!
     @IBOutlet weak var launchAtLoginMenuItem: NSMenuItem!
     @IBOutlet weak var hideIconMenuItem: NSMenuItem!
 
     private var statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     private var prevBluetoothState: Int32 = IOBluetoothPreferenceGetControllerPowerState()
+    private var prevWifiState: Bool = CWWiFiClient.shared().interface()!.powerOn()
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         LaunchAtLogin.migrateIfNeeded() // Migrate to macOS 13 API (https://github.com/sindresorhus/LaunchAtLogin/releases/tag/v5.0.0)
@@ -66,6 +72,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    var disableWifiOnPowerDown: Bool {
+        get {
+            return UserDefaults.standard.bool(forKey: "disableWifiOnPowerDown")
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "disableWifiOnPowerDown")
+        }
+    }
+
+    var wifiActionOnScreenUnlock: String {
+        get {
+            if let value = UserDefaults.standard.string(forKey: "wifiActionOnScreenUnlock") {
+                return value
+            }
+            return "nothing"
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "wifiActionOnScreenUnlock")
+        }
+    }
+
     // Click handlers
 
     @IBAction func handleMenuOpen(_ sender: NSMenu) {
@@ -75,6 +102,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         bluetoothActionOnScreenUnlockRestore.state = boolToMenuState(v: bluetoothActionOnScreenUnlock == "restore" ? (disableBluetoothOnPowerDown ? true : nil) : false)
         bluetoothActionOnScreenUnlockEnable.state = boolToMenuState(v: bluetoothActionOnScreenUnlock == "enable")
         bluetoothActionOnScreenUnlockNothing.state = boolToMenuState(v: bluetoothActionOnScreenUnlock == "nothing")
+
+        // Wi-Fi
+        disableWifiOnPowerDownMenuItem.state = boolToMenuState(v: disableWifiOnPowerDown)
+        wifiActionOnScreenUnlockRestore.isEnabled = disableWifiOnPowerDown
+        wifiActionOnScreenUnlockRestore.state = boolToMenuState(v: wifiActionOnScreenUnlock == "restore" ? (disableWifiOnPowerDown ? true : nil) : false)
+        wifiActionOnScreenUnlockEnable.state = boolToMenuState(v: wifiActionOnScreenUnlock == "enable")
+        wifiActionOnScreenUnlockNothing.state = boolToMenuState(v: wifiActionOnScreenUnlock == "nothing")
 
         // Launch at login
         launchAtLoginMenuItem.state = boolToMenuState(v: LaunchAtLogin.isEnabled)
@@ -103,6 +137,25 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @IBAction func bluetoothActionOnScreenUnlockNothingClicked(_ sender: NSMenuItem) {
         bluetoothActionOnScreenUnlock = "nothing"
+    }
+
+    @IBAction func disableWifiOnPowerDownClicked(_ sender: NSMenuItem) {
+        disableWifiOnPowerDown = !disableWifiOnPowerDown
+        if wifiActionOnScreenUnlock == "restore" {
+            wifiActionOnScreenUnlock = "nothing"
+        }
+    }
+
+    @IBAction func wifiActionOnScreenUnlockRestoreClicked(_ sender: NSMenuItem) {
+        wifiActionOnScreenUnlock = "restore"
+    }
+
+    @IBAction func wifiActionOnScreenUnlockEnableClicked(_ sender: NSMenuItem) {
+        wifiActionOnScreenUnlock = "enable"
+    }
+
+    @IBAction func wifiActionOnScreenUnlockNothingClicked(_ sender: NSMenuItem) {
+        wifiActionOnScreenUnlock = "nothing"
     }
 
     @IBAction func launchAtLoginClicked(_ sender: NSMenuItem) {
@@ -159,16 +212,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if disableBluetoothOnPowerDown {
             setBluetooth(powerOn: false)
         }
+        prevWifiState = CWWiFiClient.shared().interface()!.powerOn()
+        if disableWifiOnPowerDown {
+            setWifi(powerOn: false)
+        }
     }
 
     func onScreenUnlock(note: Notification) {
         if bluetoothActionOnScreenUnlock == "enable" || (bluetoothActionOnScreenUnlock == "restore" && prevBluetoothState != 0) {
             setBluetooth(powerOn: true)
         }
+        if wifiActionOnScreenUnlock == "enable" || (wifiActionOnScreenUnlock == "restore" && prevWifiState) {
+            setWifi(powerOn: true)
+        }
     }
 
     private func setBluetooth(powerOn: Bool) {
         IOBluetoothPreferenceSetControllerPowerState(powerOn ? 1 : 0)
+    }
+
+    private func setWifi(powerOn: Bool) {
+        try! CWWiFiClient.shared().interface()!.setPower(powerOn)
     }
 
     // UI state
