@@ -112,7 +112,7 @@
                         <action selector="hideIconClicked:" target="Voe-Tx-rLC" id="rZI-1a-Hhe"/>
                     </connections>
                 </menuItem>
-                <menuItem title="Website" toolTip="Version 1.3" id="UNc-OX-MPq">
+                <menuItem title="Website" toolTip="Version 1.4" id="UNc-OX-MPq">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="websiteClicked:" target="Voe-Tx-rLC" id="dV5-aH-tK9"/>
