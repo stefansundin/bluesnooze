@@ -89,6 +89,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    @IBAction func websiteClicked(_ sender: NSMenuItem) {
+        NSWorkspace.shared.open(URL(string: "https://github.com/stefansundin/bluesnooze")!)
+    }
+
     @IBAction func quitClicked(_ sender: NSMenuItem) {
         NSApplication.shared.terminate(self)
     }
