@@ -14,15 +14,15 @@ import LaunchAtLogin
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     @IBOutlet weak var statusMenu: NSMenu!
-    @IBOutlet weak var onPowerUpActionRemember: NSMenuItem!
-    @IBOutlet weak var onPowerUpActionAlways: NSMenuItem!
-    @IBOutlet weak var onPowerUpActionNever: NSMenuItem!
+    @IBOutlet weak var disableBluetoothOnPowerDownMenuItem: NSMenuItem!
+    @IBOutlet weak var bluetoothActionOnScreenUnlockRestore: NSMenuItem!
+    @IBOutlet weak var bluetoothActionOnScreenUnlockEnable: NSMenuItem!
+    @IBOutlet weak var bluetoothActionOnScreenUnlockNothing: NSMenuItem!
     @IBOutlet weak var launchAtLoginMenuItem: NSMenuItem!
     @IBOutlet weak var hideIconMenuItem: NSMenuItem!
 
     private var statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-    private var prevState: Int32 = IOBluetoothPreferenceGetControllerPowerState()
-    private var onPowerUpAction: String = "remember"
+    private var prevBluetoothState: Int32 = IOBluetoothPreferenceGetControllerPowerState()
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         LaunchAtLogin.migrateIfNeeded() // Migrate to macOS 13 API (https://github.com/sindresorhus/LaunchAtLogin/releases/tag/v5.0.0)
@@ -30,7 +30,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             initStatusItem()
         }
         setupNotificationHandlers()
-        syncSettings()
     }
 
     // Re-add the status bar icon when the app is launched a second time
@@ -40,31 +39,74 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return true
     }
 
-    // MARK: Click handlers
+    // Settings
+
+    var disableBluetoothOnPowerDown: Bool {
+        get {
+            if UserDefaults.standard.object(forKey: "disableBluetoothOnPowerDown") == nil {
+                // the primary function of the program is enabled by default
+                return true
+            }
+            return UserDefaults.standard.bool(forKey: "disableBluetoothOnPowerDown")
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "disableBluetoothOnPowerDown")
+        }
+    }
+
+    var bluetoothActionOnScreenUnlock: String {
+        get {
+            if let value = UserDefaults.standard.string(forKey: "bluetoothActionOnScreenUnlock") {
+                return value
+            }
+            return "restore"
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "bluetoothActionOnScreenUnlock")
+        }
+    }
+
+    // Click handlers
 
     @IBAction func handleMenuOpen(_ sender: NSMenu) {
-        syncSettings()
+        // Bluetooth
+        disableBluetoothOnPowerDownMenuItem.state = boolToMenuState(v: disableBluetoothOnPowerDown)
+        bluetoothActionOnScreenUnlockRestore.isEnabled = disableBluetoothOnPowerDown
+        bluetoothActionOnScreenUnlockRestore.state = boolToMenuState(v: bluetoothActionOnScreenUnlock == "restore" ? (disableBluetoothOnPowerDown ? true : nil) : false)
+        bluetoothActionOnScreenUnlockEnable.state = boolToMenuState(v: bluetoothActionOnScreenUnlock == "enable")
+        bluetoothActionOnScreenUnlockNothing.state = boolToMenuState(v: bluetoothActionOnScreenUnlock == "nothing")
+
+        // Launch at login
+        launchAtLoginMenuItem.state = boolToMenuState(v: LaunchAtLogin.isEnabled)
+
+        // Hide icon
+        hideIconMenuItem.state = boolToMenuState(v: UserDefaults.standard.bool(forKey: "hideIcon"))
+
+        // Show menu
         statusItem.popUpMenu(statusMenu)
     }
 
-    @IBAction func onPowerUpActionRememberClicked(_ sender: NSMenuItem) {
-        UserDefaults.standard.set("remember", forKey: "onPowerUpAction")
-        syncSettings()
+    @IBAction func disableBluetoothOnPowerDownClicked(_ sender: NSMenuItem) {
+        disableBluetoothOnPowerDown = !disableBluetoothOnPowerDown
+        if bluetoothActionOnScreenUnlock == "restore" {
+            bluetoothActionOnScreenUnlock = "nothing"
+        }
     }
 
-    @IBAction func onPowerUpActionAlwaysClicked(_ sender: NSMenuItem) {
-        UserDefaults.standard.set("always", forKey: "onPowerUpAction")
-        syncSettings()
+    @IBAction func bluetoothActionOnScreenUnlockRestoreClicked(_ sender: NSMenuItem) {
+        bluetoothActionOnScreenUnlock = "restore"
     }
 
-    @IBAction func onPowerUpActionNeverClicked(_ sender: NSMenuItem) {
-        UserDefaults.standard.set("never", forKey: "onPowerUpAction")
-        syncSettings()
+    @IBAction func bluetoothActionOnScreenUnlockEnableClicked(_ sender: NSMenuItem) {
+        bluetoothActionOnScreenUnlock = "enable"
+    }
+
+    @IBAction func bluetoothActionOnScreenUnlockNothingClicked(_ sender: NSMenuItem) {
+        bluetoothActionOnScreenUnlock = "nothing"
     }
 
     @IBAction func launchAtLoginClicked(_ sender: NSMenuItem) {
         LaunchAtLogin.isEnabled = !LaunchAtLogin.isEnabled
-        syncSettings()
     }
 
     @IBAction func hideIconClicked(_ sender: NSMenuItem) {
@@ -97,7 +139,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApplication.shared.terminate(self)
     }
 
-    // MARK: Notification handlers
+    // Notification handlers
 
     func setupNotificationHandlers() {
         [
@@ -113,12 +155,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc func onPowerDown(note: NSNotification) {
-        prevState = IOBluetoothPreferenceGetControllerPowerState()
-        setBluetooth(powerOn: false)
+        prevBluetoothState = IOBluetoothPreferenceGetControllerPowerState()
+        if disableBluetoothOnPowerDown {
+            setBluetooth(powerOn: false)
+        }
     }
 
     func onScreenUnlock(note: Notification) {
-        if (onPowerUpAction == "remember" && prevState != 0) || onPowerUpAction == "always" {
+        if bluetoothActionOnScreenUnlock == "enable" || (bluetoothActionOnScreenUnlock == "restore" && prevBluetoothState != 0) {
             setBluetooth(powerOn: true)
         }
     }
@@ -127,7 +171,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         IOBluetoothPreferenceSetControllerPowerState(powerOn ? 1 : 0)
     }
 
-    // MARK: UI state
+    // UI state
 
     private func initStatusItem() {
         if let icon = NSImage(named: "bluesnooze") {
@@ -139,30 +183,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem.button?.action = #selector(handleMenuOpen(_:))
     }
 
-    private func syncSettings() {
-        // Start Bluetooth on wake
-        onPowerUpActionRemember.state = NSControl.StateValue.off
-        onPowerUpActionAlways.state = NSControl.StateValue.off
-        onPowerUpActionNever.state = NSControl.StateValue.off
-        if let action = UserDefaults.standard.string(forKey: "onPowerUpAction") {
-            onPowerUpAction = action
-        }
-        if onPowerUpAction == "remember" {
-            onPowerUpActionRemember.state = NSControl.StateValue.on
-        } else if onPowerUpAction == "always" {
-            onPowerUpActionAlways.state = NSControl.StateValue.on
-        } else if onPowerUpAction == "never" {
-            onPowerUpActionNever.state = NSControl.StateValue.on
-        }
-
-        // Launch at login
-        launchAtLoginMenuItem.state = boolToMenuState(v: LaunchAtLogin.isEnabled)
-
-        // Hide icon
-        hideIconMenuItem.state = boolToMenuState(v: UserDefaults.standard.bool(forKey: "hideIcon"))
-    }
-
-    private func boolToMenuState(v: Bool) -> NSControl.StateValue {
-        return v ? NSControl.StateValue.on : NSControl.StateValue.off
+    private func boolToMenuState(v: Bool?) -> NSControl.StateValue {
+        return v == true ? NSControl.StateValue.on :
+               v == false ? NSControl.StateValue.off :
+               NSControl.StateValue.mixed
     }
 }

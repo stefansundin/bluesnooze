@@ -32,15 +32,17 @@ Minimum macOS version: 10.13 (use [older version](https://github.com/stefansundi
 
 ## Settings
 
-The application settings can be modified using the `defaults` command. If the `onPowerUpAction` setting is updated this way then the menu has to be opened for the new value to take effect.
+The application settings can be modified using the `defaults` command.
 
 ```shell
 # read settings:
-defaults read com.oliverpeate.Bluesnooze onPowerUpAction
+defaults read com.oliverpeate.Bluesnooze disableBluetoothOnPowerDown
+defaults read com.oliverpeate.Bluesnooze bluetoothActionOnScreenUnlock
 defaults read com.oliverpeate.Bluesnooze hideIcon
 
 # update settings:
-defaults write com.oliverpeate.Bluesnooze onPowerUpAction -string always
+defaults write com.oliverpeate.Bluesnooze disableBluetoothOnPowerDown -bool false
+defaults write com.oliverpeate.Bluesnooze bluetoothActionOnScreenUnlock -string enable
 defaults write com.oliverpeate.Bluesnooze hideIcon -bool true
 
 # delete settings: (this resets everything to defaults)
