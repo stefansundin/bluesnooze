@@ -102,10 +102,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func setupNotificationHandlers() {
         [
             NSWorkspace.willSleepNotification: #selector(onPowerDown(note:)),
-            NSWorkspace.willPowerOffNotification: #selector(onPowerDown(note:)),
-            NSWorkspace.didWakeNotification: #selector(onPowerUp(note:))
+            NSWorkspace.willPowerOffNotification: #selector(onPowerDown(note:))
         ].forEach { notification, sel in
             NSWorkspace.shared.notificationCenter.addObserver(self, selector: sel, name: notification, object: nil)
+        }
+        let dnc = DistributedNotificationCenter.default()
+        dnc.addObserver(forName: .init("com.apple.screenIsUnlocked"), object: nil, queue: .main) { notification in
+            self.onScreenUnlock(note: notification)
         }
     }
 
@@ -114,7 +117,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         setBluetooth(powerOn: false)
     }
 
-    @objc func onPowerUp(note: NSNotification) {
+    func onScreenUnlock(note: Notification) {
         if (onPowerUpAction == "remember" && prevState != 0) || onPowerUpAction == "always" {
             setBluetooth(powerOn: true)
         }
