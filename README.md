@@ -12,6 +12,8 @@ If you pair Bluetooth headphones or speakers with both your phone & Mac it can b
 
 With Bluesnooze the Bluetooth connection is switched off when your Mac sleeps, and switched on when your Mac wakes.
 
+Bluesnooze can also manage the Wi-Fi connection in the same way (disabled by default).
+
 ![Screenshot showing Bluesnooze in the status bar](images/screenshot.png)
 
 ## Installation
@@ -22,6 +24,7 @@ Minimum macOS version: 10.13 (use [older version](https://github.com/stefansundi
 1. In Finder, open `Bluesnooze.zip` in your `Downloads` directory.
 1. Drag `Bluesnooze.app` to your `Applications` directory.
 1. Launch `Bluesnooze`.
+1. *Optional*: Configure <kbd>Wi-Fi</kbd> behavior.
 1. *Optional*: Configure <kbd>Launch at login</kbd>.
 
 ## Caveats
