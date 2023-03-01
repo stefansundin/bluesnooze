@@ -17,8 +17,12 @@
                 <outlet property="bluetoothActionOnScreenUnlockEnable" destination="k9U-YJ-Qra" id="iPK-GH-kd9"/>
                 <outlet property="bluetoothActionOnScreenUnlockNothing" destination="wwz-8o-dOW" id="kwY-c8-qPz"/>
                 <outlet property="bluetoothActionOnScreenUnlockRestore" destination="mBz-mB-SAw" id="dpV-qb-pVO"/>
+                <outlet property="bluetoothDeviceListEnd" destination="U3Y-sg-vdO" id="Zze-YV-VeC"/>
+                <outlet property="bluetoothDeviceListStart" destination="FSA-t2-uKj" id="wpo-1c-ls5"/>
+                <outlet property="bluetoothMenu" destination="6db-i4-kn8" id="BX5-1E-vua"/>
                 <outlet property="disableBluetoothOnPowerDownMenuItem" destination="odn-aC-gVj" id="jsd-Lq-Mt0"/>
                 <outlet property="disableWifiOnPowerDownMenuItem" destination="Yfg-ir-eaf" id="CBH-RF-2zM"/>
+                <outlet property="disconnectBluetoothDevicesOnPowerDownMenuItem" destination="x9r-cE-Oce" id="OeR-ft-NWK"/>
                 <outlet property="hideIconMenuItem" destination="iTh-xc-apd" id="koh-Zf-4sN"/>
                 <outlet property="launchAtLoginMenuItem" destination="I9E-pI-lLm" id="DFX-bS-N3m"/>
                 <outlet property="statusMenu" destination="AEO-aA-1fp" id="ueI-UR-7ba"/>
@@ -34,29 +38,44 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Bluetooth" autoenablesItems="NO" id="6db-i4-kn8">
                         <items>
-                            <menuItem title="Turn off when sleeping" id="odn-aC-gVj">
+                            <menuItem title="Action when sleeping" enabled="NO" id="eEB-7E-yZ7">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                            </menuItem>
+                            <menuItem title="Turn off Bluetooth" indentationLevel="1" id="odn-aC-gVj">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="disableBluetoothOnPowerDownClicked:" target="Voe-Tx-rLC" id="wiF-Q6-7Fz"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="yrg-LP-7oM"/>
-                            <menuItem title="Action when unlocked:" enabled="NO" id="OUZ-ST-m1w">
+                            <menuItem title="Disconnect selected devices" indentationLevel="1" id="x9r-cE-Oce" userLabel="Disconnect device when sleeping">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="disconnectBluetoothDevicesOnPowerDownClicked:" target="Voe-Tx-rLC" id="ddZ-cs-p9I"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Device list start" hidden="YES" indentationLevel="2" id="FSA-t2-uKj">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
-                            <menuItem title="Restore previous state" id="mBz-mB-SAw">
+                            <menuItem title="Device list end" hidden="YES" indentationLevel="2" id="U3Y-sg-vdO">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="yrg-LP-7oM"/>
+                            <menuItem title="Action when unlocked" enabled="NO" id="OUZ-ST-m1w">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                            </menuItem>
+                            <menuItem title="Restore previous state" indentationLevel="1" id="mBz-mB-SAw">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="bluetoothActionOnScreenUnlockRestoreClicked:" target="Voe-Tx-rLC" id="eue-OR-a53"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Always enable" id="k9U-YJ-Qra">
+                            <menuItem title="Always enable" indentationLevel="1" id="k9U-YJ-Qra">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="bluetoothActionOnScreenUnlockEnableClicked:" target="Voe-Tx-rLC" id="CZN-qU-PVs"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Do nothing" id="wwz-8o-dOW">
+                            <menuItem title="Do nothing" indentationLevel="1" id="wwz-8o-dOW">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="bluetoothActionOnScreenUnlockNothingClicked:" target="Voe-Tx-rLC" id="Gg5-n6-rUW"/>

@@ -15,19 +15,24 @@ import CoreWLAN
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     @IBOutlet weak var statusMenu: NSMenu!
+    @IBOutlet weak var bluetoothMenu: NSMenu!
     @IBOutlet weak var disableBluetoothOnPowerDownMenuItem: NSMenuItem!
+    @IBOutlet weak var disconnectBluetoothDevicesOnPowerDownMenuItem: NSMenuItem!
     @IBOutlet weak var bluetoothActionOnScreenUnlockRestore: NSMenuItem!
     @IBOutlet weak var bluetoothActionOnScreenUnlockEnable: NSMenuItem!
     @IBOutlet weak var bluetoothActionOnScreenUnlockNothing: NSMenuItem!
+    @IBOutlet weak var bluetoothDeviceListStart: NSMenuItem!
+    @IBOutlet weak var bluetoothDeviceListEnd: NSMenuItem!
     @IBOutlet weak var disableWifiOnPowerDownMenuItem: NSMenuItem!
     @IBOutlet weak var wifiActionOnScreenUnlockRestore: NSMenuItem!
     @IBOutlet weak var wifiActionOnScreenUnlockEnable: NSMenuItem!
     @IBOutlet weak var wifiActionOnScreenUnlockNothing: NSMenuItem!
     @IBOutlet weak var launchAtLoginMenuItem: NSMenuItem!
     @IBOutlet weak var hideIconMenuItem: NSMenuItem!
-
+    
     private var statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     private var prevBluetoothState: Int32 = IOBluetoothPreferenceGetControllerPowerState()
+    private var prevBluetoothDevicesConnectedState: [String : Bool] = [String : Bool]()
     private var prevWifiState: Bool = CWWiFiClient.shared().interface()!.powerOn()
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
@@ -43,6 +48,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         initStatusItem()
         return true
+    }
+    
+    func getPairedBluetoothDevices() -> [IOBluetoothDevice] {
+        return (IOBluetoothDevice.pairedDevices() as? [IOBluetoothDevice] ?? [IOBluetoothDevice]()).filter({
+            // Make sure that it's a classic device and not a BLE device
+            //
+            // - I don't know why IOBluetoothDevice.pairedDevices() doesn't return my BLE devices.
+            // - Even more weird, sometimes, it actually returns the BLE devices after waking up from sleep.
+            // - To be consistent, for now, always force to return classic devices.
+            //
+            // Validation code taken from:
+            //   Issue 630581: bluetooth: paired devices always created as BT classic, but could be BLE
+            //   https://bugs.chromium.org/p/chromium/issues/detail?id=630581
+            $0.getServiceRecord(for: IOBluetoothSDPUUID(uuid32: kBluetoothSDPUUID16ServiceClassPnPInformation.rawValue)) != nil
+        })
     }
 
     // Settings
@@ -60,6 +80,48 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    var disconnectBluetoothDevicesOnPowerDown: Bool {
+        get {
+            if UserDefaults.standard.object(forKey: "disconnectBluetoothDevicesOnPowerDown") == nil {
+                return false
+            }
+            return UserDefaults.standard.bool(forKey: "disconnectBluetoothDevicesOnPowerDown")
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "disconnectBluetoothDevicesOnPowerDown")
+        }
+    }
+    
+    var disableBluetoothOrDisconnectBluetoothDevicesOnPowerDown: Bool {
+        disableBluetoothOnPowerDown || disconnectBluetoothDevicesOnPowerDown
+    }
+    
+    var bluetoothDevicesToDisconnect: [String] {
+        UserDefaults.standard.array(forKey: "bluetoothDevicesToDisconnectOnPowerDown") as? [String] ?? [String]()
+    }
+    
+    func setDisconnectBluetoothDeviceOnPowerDown(address addressString: String, _ disconnect: Bool)
+    {
+        var devicesToDisconnect = bluetoothDevicesToDisconnect
+        
+        if (disconnect) {
+            if (!devicesToDisconnect.contains(addressString)) {
+                devicesToDisconnect.append(addressString)
+            }
+        } else {
+            devicesToDisconnect.removeAll(where: { $0 == addressString })
+        }
+        
+        UserDefaults.standard.set(devicesToDisconnect, forKey: "bluetoothDevicesToDisconnectOnPowerDown")
+    }
+    
+    func isDisconnectBluettohDeviceOnPowerDown(_ addressString: String) -> Bool
+    {
+        let devicesToDisconnect = UserDefaults.standard.array(forKey: "bluetoothDevicesToDisconnectOnPowerDown") as? [String] ?? [String]()
+        
+        return devicesToDisconnect.contains(addressString)
+    }
+    
     var bluetoothActionOnScreenUnlock: String {
         get {
             if let value = UserDefaults.standard.string(forKey: "bluetoothActionOnScreenUnlock") {
@@ -98,8 +160,37 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBAction func handleMenuOpen(_ sender: NSMenu) {
         // Bluetooth
         disableBluetoothOnPowerDownMenuItem.state = boolToMenuState(v: disableBluetoothOnPowerDown)
-        bluetoothActionOnScreenUnlockRestore.isEnabled = disableBluetoothOnPowerDown
-        bluetoothActionOnScreenUnlockRestore.state = boolToMenuState(v: bluetoothActionOnScreenUnlock == "restore" ? (disableBluetoothOnPowerDown ? true : nil) : false)
+        
+        disconnectBluetoothDevicesOnPowerDownMenuItem.isEnabled = !disableBluetoothOnPowerDown
+        disconnectBluetoothDevicesOnPowerDownMenuItem.state = boolToMenuState(v: disconnectBluetoothDevicesOnPowerDown)
+        
+        // Populate the Bluetooth device list
+        let bluetoothDeviceListInsertIndex = bluetoothMenu.index(of: bluetoothDeviceListStart) + 1
+        let bluetoothDeviceListEndIndex = bluetoothMenu.index(of: bluetoothDeviceListEnd)
+
+        for _ in bluetoothDeviceListInsertIndex..<bluetoothDeviceListEndIndex {
+            bluetoothMenu.removeItem(at: bluetoothDeviceListInsertIndex)
+        }
+        
+        let pairedBluetoothDevices = getPairedBluetoothDevices()
+        if (pairedBluetoothDevices.isEmpty) {
+            let noDevicesMenuItem = NSMenuItem(title: "No devices", action: nil, keyEquivalent: "")
+            noDevicesMenuItem.isEnabled = false
+            noDevicesMenuItem.indentationLevel = bluetoothDeviceListStart.indentationLevel
+        } else {
+            for case let device in pairedBluetoothDevices.reversed() {
+                let deviceMenuItem = BluetoothDeviceMenuItem(forDevice: device, action: #selector(blutoothDeviceClicked(_:)), keyEquivalent: "")
+                deviceMenuItem.target = self
+                deviceMenuItem.state = boolToMenuState(v: isDisconnectBluettohDeviceOnPowerDown(device.addressString))
+                deviceMenuItem.isEnabled = disconnectBluetoothDevicesOnPowerDown
+                deviceMenuItem.indentationLevel = bluetoothDeviceListStart.indentationLevel
+                
+                bluetoothMenu.insertItem(deviceMenuItem, at: bluetoothDeviceListInsertIndex)
+            }
+        }
+        
+        bluetoothActionOnScreenUnlockRestore.isEnabled = disableBluetoothOrDisconnectBluetoothDevicesOnPowerDown
+        bluetoothActionOnScreenUnlockRestore.state = boolToMenuState(v: bluetoothActionOnScreenUnlock == "restore" ? (disableBluetoothOrDisconnectBluetoothDevicesOnPowerDown ? true : nil) : false)
         bluetoothActionOnScreenUnlockEnable.state = boolToMenuState(v: bluetoothActionOnScreenUnlock == "enable")
         bluetoothActionOnScreenUnlockNothing.state = boolToMenuState(v: bluetoothActionOnScreenUnlock == "nothing")
 
@@ -122,6 +213,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @IBAction func disableBluetoothOnPowerDownClicked(_ sender: NSMenuItem) {
         disableBluetoothOnPowerDown = !disableBluetoothOnPowerDown
+        if bluetoothActionOnScreenUnlock == "restore" {
+            bluetoothActionOnScreenUnlock = "nothing"
+        }
+        
+        if disableBluetoothOnPowerDown {
+            disconnectBluetoothDevicesOnPowerDown = false
+        }
+    }
+    
+    @IBAction func disconnectBluetoothDevicesOnPowerDownClicked(_ sender: NSMenuItem) {
+        disconnectBluetoothDevicesOnPowerDown = !disconnectBluetoothDevicesOnPowerDown
         if bluetoothActionOnScreenUnlock == "restore" {
             bluetoothActionOnScreenUnlock = "nothing"
         }
@@ -191,6 +293,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBAction func quitClicked(_ sender: NSMenuItem) {
         NSApplication.shared.terminate(self)
     }
+    
+    @IBAction func blutoothDeviceClicked(_ sender: BluetoothDeviceMenuItem) {
+        setDisconnectBluetoothDeviceOnPowerDown(address: sender.deviceAddressString, !isDisconnectBluettohDeviceOnPowerDown(sender.deviceAddressString))
+    }
 
     // Notification handlers
 
@@ -209,9 +315,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func onPowerDown(note: NSNotification) {
         prevBluetoothState = IOBluetoothPreferenceGetControllerPowerState()
+        
+        getPairedBluetoothDevices().forEach({
+            prevBluetoothDevicesConnectedState[$0.addressString] = $0.isConnected()
+        })
+        
         if disableBluetoothOnPowerDown {
             setBluetooth(powerOn: false)
+        } else if disconnectBluetoothDevicesOnPowerDown {
+            bluetoothDevicesToDisconnect.forEach({
+                disconnectBluetoothDevice(address: $0)
+            })
         }
+        
         prevWifiState = CWWiFiClient.shared().interface()!.powerOn()
         if disableWifiOnPowerDown {
             setWifi(powerOn: false)
@@ -221,6 +337,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func onScreenUnlock(note: Notification) {
         if bluetoothActionOnScreenUnlock == "enable" || (bluetoothActionOnScreenUnlock == "restore" && prevBluetoothState != 0) {
             setBluetooth(powerOn: true)
+            
+            if disconnectBluetoothDevicesOnPowerDown {
+                bluetoothDevicesToDisconnect.forEach({
+                    if prevBluetoothDevicesConnectedState[$0] ?? false {
+                        connectBluetoothDevice(address: $0)
+                    }
+                })
+            }
         }
         if wifiActionOnScreenUnlock == "enable" || (wifiActionOnScreenUnlock == "restore" && prevWifiState) {
             setWifi(powerOn: true)
@@ -233,6 +357,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func setWifi(powerOn: Bool) {
         try! CWWiFiClient.shared().interface()!.setPower(powerOn)
+    }
+    
+    private func disconnectBluetoothDevice(address addressString: String) {
+        let device = IOBluetoothDevice(addressString: addressString)
+        
+        print("disconnectBluetoothDevice", addressString, device ?? "Invalid device")
+        
+        device?.closeConnection()
+    }
+    
+    private func connectBluetoothDevice(address addressString: String) {
+        let device = IOBluetoothDevice(addressString: addressString)
+        
+        print("connectBluetoothDevice", addressString, device ?? "Invalid device")
+        
+        // Connect asynchronously
+        device?.openConnection(self)
+    }
+    
+    @objc func connectionComplete(_ device: IOBluetoothDevice, status: IOReturn) {
+        print("connectionComplete", device.nameOrAddress ?? "Unknown", "success:", status == kIOReturnSuccess)
     }
 
     // UI state
@@ -251,5 +396,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return v == true ? NSControl.StateValue.on :
                v == false ? NSControl.StateValue.off :
                NSControl.StateValue.mixed
+    }
+}
+
+class BluetoothDeviceMenuItem : NSMenuItem {
+    var deviceAddressString : String
+    
+    public init(forDevice device: IOBluetoothDevice, action selector: Selector?, keyEquivalent charCode: String) {
+        self.deviceAddressString = device.addressString
+        
+        super.init(title: device.nameOrAddress, action: selector, keyEquivalent: charCode)
+    }
+    
+    public required init(coder: NSCoder) {
+        deviceAddressString = (coder.decodeObject(forKey: "deviceAddressString") as? String)!
+        
+        super.init(coder: coder)
+    }
+    
+    override func encode(with coder: NSCoder) {
+        super.encode(with: coder)
+        
+        coder.encode(deviceAddressString, forKey: "deviceAddressString")
+        
     }
 }
