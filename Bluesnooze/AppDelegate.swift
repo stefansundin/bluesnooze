@@ -360,7 +360,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             
             if disconnectBluetoothDevicesOnPowerDown {
                 bluetoothDevicesToDisconnect.forEach({
-                    if prevBluetoothDevicesConnectedState[$0] ?? false {
+                    if bluetoothActionOnScreenUnlock == "enable" || prevBluetoothDevicesConnectedState[$0] ?? false {
                         connectBluetoothDevice(address: $0)
                     }
                 })
