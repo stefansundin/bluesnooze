@@ -10,6 +10,7 @@ import Cocoa
 import IOBluetooth
 import LaunchAtLogin
 import CoreWLAN
+import os.log
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -29,6 +30,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet weak var wifiActionOnScreenUnlockNothing: NSMenuItem!
     @IBOutlet weak var launchAtLoginMenuItem: NSMenuItem!
     @IBOutlet weak var hideIconMenuItem: NSMenuItem!
+    
+    private let bluetoothLog: OSLog = OSLog(subsystem: Bundle.main.bundleIdentifier!, category: "bluetooth")
+    private let wifiLog: OSLog = OSLog(subsystem: Bundle.main.bundleIdentifier!, category: "wifi")
     
     private var statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     private var prevBluetoothState: Int32 = IOBluetoothPreferenceGetControllerPowerState()
@@ -51,7 +55,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     func getPairedBluetoothDevices() -> [IOBluetoothDevice] {
-        return (IOBluetoothDevice.pairedDevices() as? [IOBluetoothDevice] ?? [IOBluetoothDevice]()).filter({
+        let pairedDevices: [IOBluetoothDevice] = IOBluetoothDevice.pairedDevices() as? [IOBluetoothDevice] ?? [IOBluetoothDevice]()
+        os_log("Raw paired Bluetooth devices: %{public}@", log: bluetoothLog, type: .debug, pairedDevices.description)
+        
+        let filteredDevices: [IOBluetoothDevice] = pairedDevices.filter({
             // Make sure that it's a classic device and not a BLE device
             //
             // I don't know what's the expected behavior of IOBluetoothDevice.pairedDevices(). On my Mac Mini M1, Ventura 13.2.1 (22D68):
@@ -70,6 +77,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             //   https://bugs.chromium.org/p/chromium/issues/detail?id=630581
             $0.getServiceRecord(for: IOBluetoothSDPUUID(uuid32: kBluetoothSDPUUID16ServiceClassPnPInformation.rawValue)) != nil
         })
+        
+        return filteredDevices
     }
 
     // Settings
@@ -180,6 +189,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         let pairedBluetoothDevices = getPairedBluetoothDevices()
+        os_log("Paired Bluetooth devices: %{public}@", log: bluetoothLog, type: .default, pairedBluetoothDevices.description)
         if (pairedBluetoothDevices.isEmpty) {
             let noDevicesMenuItem = NSMenuItem(title: "No devices", action: nil, keyEquivalent: "")
             noDevicesMenuItem.isEnabled = false
@@ -322,10 +332,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func onPowerDown(note: NSNotification) {
         prevBluetoothState = IOBluetoothPreferenceGetControllerPowerState()
+        os_log("prevBluetoothState: %d", log: bluetoothLog, type: .debug, prevBluetoothState)
         
         getPairedBluetoothDevices().forEach({
             prevBluetoothDevicesConnectedState[$0.addressString] = $0.isConnected()
         })
+        os_log("prevBluetoothDevicesConnectedState: %{public}@", log: bluetoothLog, type: .debug, prevBluetoothDevicesConnectedState.description)
         
         if disableBluetoothOnPowerDown {
             setBluetooth(powerOn: false)
@@ -336,6 +348,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         prevWifiState = CWWiFiClient.shared().interface()!.powerOn()
+        os_log("prevWifiState: %{bool}d", log: bluetoothLog, type: .debug, prevWifiState)
         if disableWifiOnPowerDown {
             setWifi(powerOn: false)
         }
@@ -359,36 +372,44 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func setBluetooth(powerOn: Bool) {
+        os_log("Set Bluetooth on: %{bool}d", log: bluetoothLog, type: .default, powerOn)
+        
         IOBluetoothPreferenceSetControllerPowerState(powerOn ? 1 : 0)
     }
 
     private func setWifi(powerOn: Bool) {
-        try! CWWiFiClient.shared().interface()!.setPower(powerOn)
+        os_log("Set Wifi on: %{bool}d", log: wifiLog, type: .default, powerOn)
+        
+        do {
+            try CWWiFiClient.shared().interface()!.setPower(powerOn)
+        } catch {
+            os_log("Error setting wifi status: %{public}@", log: wifiLog, type: .error, error.localizedDescription)
+        }
     }
     
     private func disconnectBluetoothDevice(address addressString: String) {
         let device: IOBluetoothDevice = IOBluetoothDevice(addressString: addressString)
-        print("disconnectBluetoothDevice", addressString, device, "paired:", device.isPaired(), "connected:", device.isConnected())
+        os_log("Disconnect %{public}@, paired: %{bool}d, connected: %{bool}d", log: bluetoothLog, type: .default, device, device.isPaired(), device.isConnected())
         
         if device.isConnected() {
             let status: IOReturn = device.closeConnection()
-            print("disconnectBluetoothDevice", addressString, "success:", status == kIOReturnSuccess)
+            os_log("Closed connection: %{public}@, success: %{bool}d", log: bluetoothLog, type: .default, device, status == kIOReturnSuccess)
         }
     }
     
     private func connectBluetoothDevice(address addressString: String) {
         let device: IOBluetoothDevice = IOBluetoothDevice(addressString: addressString)
-        print("connectBluetoothDevice", addressString, device, "paired:", device.isPaired(), "connected:", device.isConnected())
+        os_log("Connect %{public}@, paired: %{bool}d, connected: %{bool}d", log: bluetoothLog, type: .default, device, device.isPaired(), device.isConnected())
         
-        if !device.isConnected() {
+        if device.isPaired() && !device.isConnected() {
             // Connect asynchronously
             let status: IOReturn = device.openConnection(self)
-            print("connectBluetoothDevice", addressString, "CREATE_CONNECTION command success:", status == kIOReturnSuccess)
+            os_log("%{public}@, CREATE_CONNECTION command success: %{bool}d", log: bluetoothLog, type: .default, device, status == kIOReturnSuccess)
         }
     }
     
     @objc func connectionComplete(_ device: IOBluetoothDevice, status: IOReturn) {
-        print("connectionComplete", device.addressString!, device, "success:", status == kIOReturnSuccess)
+        os_log("Connection complete: %{public}@, success: %{bool}d", log: bluetoothLog, type: .default, device, status == kIOReturnSuccess)
     }
 
     // UI state
