@@ -54,9 +54,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return (IOBluetoothDevice.pairedDevices() as? [IOBluetoothDevice] ?? [IOBluetoothDevice]()).filter({
             // Make sure that it's a classic device and not a BLE device
             //
-            // - I don't know why IOBluetoothDevice.pairedDevices() doesn't return my BLE devices.
-            // - Even more weird, sometimes, it actually returns the BLE devices after waking up from sleep.
-            // - To be consistent, for now, always force to return classic devices.
+            // I don't know what's the expected behavior of IOBluetoothDevice.pairedDevices(). On my Mac Mini M1, Ventura 13.2.1 (22D68):
+            //   - IOBluetoothDevice.pairedDevices() doesn't return my BLE devices.
+            //   - However, if Bluesnooze is running and after waking up from sleep, it will return the BLE devices.
+            //
+            // But I also don't know the expected behavior of a IOBluetoothDevice that references a BLE device:
+            //   - closeConnection() returns success but doesn't acutally disconnect the device.
+            //
+            // But I can't test on any other BLE devices because the only one I have is my MX Master mouse.
+            //
+            // For now, to be consistent and to avoid any uknown behaviors, force to return classic devices.
             //
             // Validation code taken from:
             //   Issue 630581: bluetooth: paired devices always created as BT classic, but could be BLE
@@ -360,24 +367,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     private func disconnectBluetoothDevice(address addressString: String) {
-        let device = IOBluetoothDevice(addressString: addressString)
+        let device: IOBluetoothDevice = IOBluetoothDevice(addressString: addressString)
+        print("disconnectBluetoothDevice", addressString, device, "paired:", device.isPaired(), "connected:", device.isConnected())
         
-        print("disconnectBluetoothDevice", addressString, device ?? "Invalid device")
-        
-        device?.closeConnection()
+        if device.isConnected() {
+            let status: IOReturn = device.closeConnection()
+            print("disconnectBluetoothDevice", addressString, "success:", status == kIOReturnSuccess)
+        }
     }
     
     private func connectBluetoothDevice(address addressString: String) {
-        let device = IOBluetoothDevice(addressString: addressString)
+        let device: IOBluetoothDevice = IOBluetoothDevice(addressString: addressString)
+        print("connectBluetoothDevice", addressString, device, "paired:", device.isPaired(), "connected:", device.isConnected())
         
-        print("connectBluetoothDevice", addressString, device ?? "Invalid device")
-        
-        // Connect asynchronously
-        device?.openConnection(self)
+        if !device.isConnected() {
+            // Connect asynchronously
+            let status: IOReturn = device.openConnection(self)
+            print("connectBluetoothDevice", addressString, "CREATE_CONNECTION command success:", status == kIOReturnSuccess)
+        }
     }
     
     @objc func connectionComplete(_ device: IOBluetoothDevice, status: IOReturn) {
-        print("connectionComplete", device.nameOrAddress ?? "Unknown", "success:", status == kIOReturnSuccess)
+        print("connectionComplete", device.addressString!, device, "success:", status == kIOReturnSuccess)
     }
 
     // UI state
