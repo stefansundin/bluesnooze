@@ -56,7 +56,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func getPairedBluetoothDevices() -> [IOBluetoothDevice] {
         let pairedDevices: [IOBluetoothDevice] = IOBluetoothDevice.pairedDevices() as? [IOBluetoothDevice] ?? [IOBluetoothDevice]()
-        os_log("Raw paired Bluetooth devices: %{public}@", log: bluetoothLog, type: .debug, pairedDevices.description)
+        os_log("Raw paired Bluetooth devices: %{public}@", log: bluetoothLog, type: .debug, pairedDevices)
         
         let filteredDevices: [IOBluetoothDevice] = pairedDevices.filter({
             // Make sure that it's a classic device and not a BLE device
@@ -189,7 +189,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         let pairedBluetoothDevices = getPairedBluetoothDevices()
-        os_log("Paired Bluetooth devices: %{public}@", log: bluetoothLog, type: .default, pairedBluetoothDevices.description)
+        os_log("Paired Bluetooth devices: %{public}@", log: bluetoothLog, type: .default, pairedBluetoothDevices)
         if (pairedBluetoothDevices.isEmpty) {
             let noDevicesMenuItem = NSMenuItem(title: "No devices", action: nil, keyEquivalent: "")
             noDevicesMenuItem.isEnabled = false
@@ -337,7 +337,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         getPairedBluetoothDevices().forEach({
             prevBluetoothDevicesConnectedState[$0.addressString] = $0.isConnected()
         })
-        os_log("prevBluetoothDevicesConnectedState: %{public}@", log: bluetoothLog, type: .debug, prevBluetoothDevicesConnectedState.description)
+        os_log("prevBluetoothDevicesConnectedState: %{public}@", log: bluetoothLog, type: .debug, prevBluetoothDevicesConnectedState)
         
         if disableBluetoothOnPowerDown {
             setBluetooth(powerOn: false)
@@ -348,7 +348,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         prevWifiState = CWWiFiClient.shared().interface()!.powerOn()
-        os_log("prevWifiState: %{bool}d", log: bluetoothLog, type: .debug, prevWifiState)
+        os_log("prevWifiState: %{bool}d", log: wifiLog, type: .debug, prevWifiState)
         if disableWifiOnPowerDown {
             setWifi(powerOn: false)
         }
@@ -383,7 +383,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         do {
             try CWWiFiClient.shared().interface()!.setPower(powerOn)
         } catch {
-            os_log("Error setting wifi status: %{public}@", log: wifiLog, type: .error, error.localizedDescription)
+            os_log("Error setting wifi status: %{public}@", log: wifiLog, type: .error, String(describing: error))
         }
     }
     
