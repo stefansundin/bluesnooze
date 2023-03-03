@@ -378,12 +378,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func setWifi(powerOn: Bool) {
-        os_log("Set Wifi on: %{bool}d", log: wifiLog, type: .default, powerOn)
-        
-        do {
-            try CWWiFiClient.shared().interface()!.setPower(powerOn)
-        } catch {
-            os_log("Error setting wifi status: %{public}@", log: wifiLog, type: .error, String(describing: error))
+        if let interface = CWWiFiClient.shared().interface() {
+            os_log("Set Wifi %{public}@ on: %{bool}d", log: wifiLog, type: .default, interface, powerOn)
+            do {
+                try interface.setPower(powerOn)
+            } catch {
+                os_log("Error setting Wifi state: %{public}@", log: wifiLog, type: .error, String(describing: error))
+            }
+        } else {
+            os_log("No default Wifi interface available", log: wifiLog, type: .error)
         }
     }
     
