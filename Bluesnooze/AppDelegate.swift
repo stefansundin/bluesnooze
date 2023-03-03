@@ -339,11 +339,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         })
         os_log("prevBluetoothDevicesConnectedState: %{public}@", log: bluetoothLog, type: .debug, prevBluetoothDevicesConnectedState)
         
+        var disconnectedBluetoothDevices: [IOBluetoothDevice] = [IOBluetoothDevice]()
         if disableBluetoothOnPowerDown {
             setBluetooth(powerOn: false)
         } else if disconnectBluetoothDevicesOnPowerDown {
             bluetoothDevicesToDisconnect.forEach({
-                disconnectBluetoothDevice(address: $0)
+                let device = disconnectBluetoothDevice(address: $0)
+                disconnectedBluetoothDevices.append(device)
             })
         }
         
@@ -352,6 +354,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if disableWifiOnPowerDown {
             setWifi(powerOn: false)
         }
+        
+        // Wait for the the Bluetooth devices to be actually disconnected to avoid a race condition when the Mac is awakened right away, as it goes to sleep:
+        //   1. Sleep
+        //   2. Disconnect Bluetooth device
+        //      1. IOBluetoothDevice.closeConnection() returns successfully.
+        //      2. But actual Bluetooth device hasn't disconnected yet.
+        //   3. Wake up right away
+        //   4. Connect Bluetooth device
+        //      1. Bluetooth device is actually still connected.
+        //      2. IOBluetoothDevice.openConnection() returns successfully.
+        //   5. Bluetooth device finally disconnects.
+        //   6. Even though the Mac is now awaken, the Bluetooth device remains disconnected.
+        waitToBeActuallyDisconnected(blueToothDevices: disconnectedBluetoothDevices, timeout: 5)
     }
 
     func onScreenUnlock(note: Notification) {
@@ -390,7 +405,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
-    private func disconnectBluetoothDevice(address addressString: String) {
+    private func disconnectBluetoothDevice(address addressString: String) -> IOBluetoothDevice {
         let device: IOBluetoothDevice = IOBluetoothDevice(addressString: addressString)
         os_log("Disconnect %{public}@, paired: %{bool}d, connected: %{bool}d", log: bluetoothLog, type: .default, device, device.isPaired(), device.isConnected())
         
@@ -398,6 +413,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let status: IOReturn = device.closeConnection()
             os_log("Closed connection: %{public}@, success: %{bool}d", log: bluetoothLog, type: .default, device, status == kIOReturnSuccess)
         }
+        
+        return device
     }
     
     private func connectBluetoothDevice(address addressString: String) {
@@ -413,6 +430,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     @objc func connectionComplete(_ device: IOBluetoothDevice, status: IOReturn) {
         os_log("Connection complete: %{public}@, success: %{bool}d", log: bluetoothLog, type: .default, device, status == kIOReturnSuccess)
+    }
+    
+    private func waitToBeActuallyDisconnected(blueToothDevices devices: [IOBluetoothDevice], timeout: TimeInterval) {
+        let stopTime = Date() + timeout
+        let sleepInterval = TimeInterval.minimum(0.5, timeout)
+        
+        while(devices.contains(where: { $0.isConnected() }) && Date() < stopTime) {
+            os_log("Waiting for devices to be disconnected", log: bluetoothLog)
+            Thread.sleep(forTimeInterval: sleepInterval)
+        }
+        
+        if (Date() < stopTime) {
+            os_log("All devices disconnected", log: bluetoothLog)
+        } else {
+            os_log("Gave up on waiting for devices to be disconnected", log: bluetoothLog)
+        }
     }
 
     // UI state
@@ -453,6 +486,5 @@ class BluetoothDeviceMenuItem : NSMenuItem {
         super.encode(with: coder)
         
         coder.encode(deviceAddressString, forKey: "deviceAddressString")
-        
     }
 }
