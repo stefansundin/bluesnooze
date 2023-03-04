@@ -10,6 +10,7 @@ import Cocoa
 import IOBluetooth
 import LaunchAtLogin
 import CoreWLAN
+import Foundation
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -31,6 +32,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var prevWifiState: Bool = CWWiFiClient.shared().interface()!.powerOn()
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        logString("applicationDidFinishLaunching")
         LaunchAtLogin.migrateIfNeeded() // Migrate to macOS 13 API (https://github.com/sindresorhus/LaunchAtLogin/releases/tag/v5.0.0)
         if !UserDefaults.standard.bool(forKey: "hideIcon") {
             initStatusItem()
@@ -40,6 +42,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // Re-add the status bar icon when the app is launched a second time
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        logString("applicationShouldHandleReopen")
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         initStatusItem()
         return true
@@ -96,6 +99,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // Click handlers
 
     @IBAction func handleMenuOpen(_ sender: NSMenu) {
+        logString("handleMenuOpen")
+
         // Bluetooth
         disableBluetoothOnPowerDownMenuItem.state = boolToMenuState(v: disableBluetoothOnPowerDown)
         bluetoothActionOnScreenUnlockRestore.isEnabled = disableBluetoothOnPowerDown
@@ -208,6 +213,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc func onPowerDown(note: NSNotification) {
+        logString(String(format: "onPowerDown. prevBluetoothState: %d. prevWifiState: %d.", prevBluetoothState, prevWifiState))
+
         prevBluetoothState = IOBluetoothPreferenceGetControllerPowerState()
         if disableBluetoothOnPowerDown {
             setBluetooth(powerOn: false)
@@ -219,6 +226,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func onScreenUnlock(note: Notification) {
+        logString(String(format: "onScreenUnlock. prevBluetoothState: %d. prevWifiState: %d.", prevBluetoothState, prevWifiState))
         if bluetoothActionOnScreenUnlock == "enable" || (bluetoothActionOnScreenUnlock == "restore" && prevBluetoothState != 0) {
             setBluetooth(powerOn: true)
         }
@@ -228,10 +236,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func setBluetooth(powerOn: Bool) {
+        logString(String(format: "setBluetooth(%d)", powerOn))
         IOBluetoothPreferenceSetControllerPowerState(powerOn ? 1 : 0)
     }
 
     private func setWifi(powerOn: Bool) {
+        logString(String(format: "setWifi(%d)", powerOn))
         try! CWWiFiClient.shared().interface()!.setPower(powerOn)
     }
 
@@ -249,7 +259,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func boolToMenuState(v: Bool?) -> NSControl.StateValue {
         return v == true ? NSControl.StateValue.on :
-               v == false ? NSControl.StateValue.off :
-               NSControl.StateValue.mixed
+            v == false ? NSControl.StateValue.off :
+            NSControl.StateValue.mixed
+    }
+
+    private func logString(_ message: String) {
+        NSLog(message)
+        let dir: URL = FileManager.default.homeDirectoryForCurrentUser
+        let logFile = dir.appendingPathComponent("bluesnooze.log")
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm:ss"
+        let timestamp = formatter.string(from: Date())
+        guard let data = (timestamp + ": " + message + "\n").data(using: String.Encoding.utf8) else { return }
+
+        if FileManager.default.fileExists(atPath: logFile.path) {
+            if let fileHandle = try? FileHandle(forWritingTo: logFile) {
+                fileHandle.seekToEndOfFile()
+                fileHandle.write(data)
+                fileHandle.closeFile()
+            }
+        } else {
+            try? data.write(to: logFile, options: .atomicWrite)
+        }
     }
 }
