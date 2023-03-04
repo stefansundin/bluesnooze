@@ -189,7 +189,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         let pairedBluetoothDevices = getPairedBluetoothDevices()
-        os_log("Paired Bluetooth devices: %{public}@", log: bluetoothLog, type: .default, pairedBluetoothDevices)
+        os_log("Paired Bluetooth devices: %{public}@", log: bluetoothLog, pairedBluetoothDevices)
         if (pairedBluetoothDevices.isEmpty) {
             let noDevicesMenuItem = NSMenuItem(title: "No devices", action: nil, keyEquivalent: "")
             noDevicesMenuItem.isEnabled = false
@@ -387,14 +387,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func setBluetooth(powerOn: Bool) {
-        os_log("Set Bluetooth on: %{bool}d", log: bluetoothLog, type: .default, powerOn)
+        os_log("Set Bluetooth on: %{bool}d", log: bluetoothLog, powerOn)
         
         IOBluetoothPreferenceSetControllerPowerState(powerOn ? 1 : 0)
     }
 
     private func setWifi(powerOn: Bool) {
         if let interface = CWWiFiClient.shared().interface() {
-            os_log("Set Wifi %{public}@ on: %{bool}d", log: wifiLog, type: .default, interface, powerOn)
+            os_log("Set Wifi %{public}@ on: %{bool}d", log: wifiLog, interface, powerOn)
             do {
                 try interface.setPower(powerOn)
             } catch {
@@ -407,11 +407,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     private func disconnectBluetoothDevice(address addressString: String) -> IOBluetoothDevice {
         let device: IOBluetoothDevice = IOBluetoothDevice(addressString: addressString)
-        os_log("Disconnect %{public}@, paired: %{bool}d, connected: %{bool}d", log: bluetoothLog, type: .default, device, device.isPaired(), device.isConnected())
+        os_log("Disconnect %{public}@, paired: %{bool}d, connected: %{bool}d", log: bluetoothLog, device, device.isPaired(), device.isConnected())
         
         if device.isConnected() {
             let status: IOReturn = device.closeConnection()
-            os_log("Closed connection: %{public}@, success: %{bool}d", log: bluetoothLog, type: .default, device, status == kIOReturnSuccess)
+            os_log("Closed connection: %{public}@, success: %{bool}d", log: bluetoothLog, device, status == kIOReturnSuccess)
         }
         
         return device
@@ -419,32 +419,36 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     private func connectBluetoothDevice(address addressString: String) {
         let device: IOBluetoothDevice = IOBluetoothDevice(addressString: addressString)
-        os_log("Connect %{public}@, paired: %{bool}d, connected: %{bool}d", log: bluetoothLog, type: .default, device, device.isPaired(), device.isConnected())
+        os_log("Connect %{public}@, paired: %{bool}d, connected: %{bool}d", log: bluetoothLog, device, device.isPaired(), device.isConnected())
         
         if device.isPaired() && !device.isConnected() {
             // Connect asynchronously
             let status: IOReturn = device.openConnection(self)
-            os_log("%{public}@, CREATE_CONNECTION command success: %{bool}d", log: bluetoothLog, type: .default, device, status == kIOReturnSuccess)
+            os_log("%{public}@, CREATE_CONNECTION command success: %{bool}d", log: bluetoothLog, device, status == kIOReturnSuccess)
         }
     }
     
     @objc func connectionComplete(_ device: IOBluetoothDevice, status: IOReturn) {
-        os_log("Connection complete: %{public}@, success: %{bool}d", log: bluetoothLog, type: .default, device, status == kIOReturnSuccess)
+        os_log("Connection complete: %{public}@, success: %{bool}d", log: bluetoothLog, device, status == kIOReturnSuccess)
     }
     
     private func waitToBeActuallyDisconnected(blueToothDevices devices: [IOBluetoothDevice], timeout: TimeInterval) {
-        let stopTime = Date() + timeout
         let sleepInterval = TimeInterval.minimum(0.5, timeout)
+        let timeoutTime = Date() + timeout
         
-        while(devices.contains(where: { $0.isConnected() }) && Date() < stopTime) {
-            os_log("Waiting for devices to be disconnected", log: bluetoothLog)
-            Thread.sleep(forTimeInterval: sleepInterval)
+        var timeoutReached: Bool = false
+        while(!timeoutReached && devices.contains(where: { $0.isConnected() })) {
+            timeoutReached = Date() > timeoutTime
+            if (!timeoutReached) {
+                os_log("Waiting for devices to be disconnected", log: bluetoothLog)
+                Thread.sleep(forTimeInterval: sleepInterval)
+            }
         }
         
-        if (Date() < stopTime) {
-            os_log("All devices disconnected", log: bluetoothLog)
-        } else {
+        if (timeoutReached) {
             os_log("Gave up on waiting for devices to be disconnected", log: bluetoothLog)
+        } else {
+            os_log("All devices disconnected", log: bluetoothLog)
         }
     }
 
