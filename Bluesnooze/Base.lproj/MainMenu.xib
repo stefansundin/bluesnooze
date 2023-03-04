@@ -34,29 +34,32 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Bluetooth" autoenablesItems="NO" id="6db-i4-kn8">
                         <items>
-                            <menuItem title="Turn off when sleeping" id="odn-aC-gVj">
+                            <menuItem title="Action when sleeping" enabled="NO" id="eEB-7E-yZ7">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                            </menuItem>
+                            <menuItem title="Turn off Bluetooth" indentationLevel="1" id="odn-aC-gVj">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="disableBluetoothOnPowerDownClicked:" target="Voe-Tx-rLC" id="wiF-Q6-7Fz"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="yrg-LP-7oM"/>
-                            <menuItem title="Action when unlocked:" enabled="NO" id="OUZ-ST-m1w">
+                            <menuItem title="Action when unlocked" enabled="NO" id="OUZ-ST-m1w">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
-                            <menuItem title="Restore previous state" id="mBz-mB-SAw">
+                            <menuItem title="Restore previous state" indentationLevel="1" id="mBz-mB-SAw">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="bluetoothActionOnScreenUnlockRestoreClicked:" target="Voe-Tx-rLC" id="eue-OR-a53"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Always enable" id="k9U-YJ-Qra">
+                            <menuItem title="Always enable" indentationLevel="1" id="k9U-YJ-Qra">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="bluetoothActionOnScreenUnlockEnableClicked:" target="Voe-Tx-rLC" id="CZN-qU-PVs"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Do nothing" id="wwz-8o-dOW">
+                            <menuItem title="Do nothing" indentationLevel="1" id="wwz-8o-dOW">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="bluetoothActionOnScreenUnlockNothingClicked:" target="Voe-Tx-rLC" id="Gg5-n6-rUW"/>
@@ -69,29 +72,32 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Wi-Fi" autoenablesItems="NO" id="FLk-RB-qqS">
                         <items>
-                            <menuItem title="Turn off when sleeping" id="Yfg-ir-eaf">
+                            <menuItem title="Action when sleeping" enabled="NO" id="h72-KL-UG8">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                            </menuItem>
+                            <menuItem title="Turn off Wi-Fi" indentationLevel="1" id="Yfg-ir-eaf">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="disableWifiOnPowerDownClicked:" target="Voe-Tx-rLC" id="7gH-3d-PVL"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="dSG-j1-2Iy"/>
-                            <menuItem title="Action when unlocked:" enabled="NO" id="I3h-jC-DnK">
+                            <menuItem title="Action when unlocked" enabled="NO" id="I3h-jC-DnK">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
-                            <menuItem title="Restore previous state" id="1rl-rg-UXC">
+                            <menuItem title="Restore previous state" indentationLevel="1" id="1rl-rg-UXC">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="wifiActionOnScreenUnlockRestoreClicked:" target="Voe-Tx-rLC" id="EeB-cm-Qfu"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Always enable" id="hQ1-fS-R7M">
+                            <menuItem title="Always enable" indentationLevel="1" id="hQ1-fS-R7M">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="wifiActionOnScreenUnlockEnableClicked:" target="Voe-Tx-rLC" id="D98-uF-FDB"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Do nothing" id="Xld-ce-WJb">
+                            <menuItem title="Do nothing" indentationLevel="1" id="Xld-ce-WJb">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="wifiActionOnScreenUnlockNothingClicked:" target="Voe-Tx-rLC" id="4gn-DR-DLn"/>
