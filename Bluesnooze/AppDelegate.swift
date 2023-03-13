@@ -357,7 +357,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             setWifi(powerOn: false)
         }
         
-        // Wait for the the Bluetooth devices to be actually disconnected to avoid a race condition when the Mac is awakened right away, as it goes to sleep:
+        // Wait for the the Bluetooth devices to be actually disconnected to avoid a race condition when the Mac is awakened right away while it tries to go to sleep:
         //   1. Sleep
         //   2. Disconnect Bluetooth device
         //      1. IOBluetoothDevice.closeConnection() returns successfully.
@@ -367,8 +367,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         //      1. Bluetooth device is actually still connected.
         //      2. IOBluetoothDevice.openConnection() returns successfully.
         //   5. Bluetooth device finally disconnects.
-        //   6. Even though the Mac is now awaken, the Bluetooth device remains disconnected.
-        waitToBeActuallyDisconnected(blueToothDevices: disconnectedBluetoothDevices, timeout: 5)
+        //   6. Even though the Mac is now awake, the Bluetooth device remains disconnected.
+        waitToBeActuallyDisconnected(blueToothDevices: disconnectedBluetoothDevices, retryInterval: 0.5, timeout: 5)
     }
 
     func onScreenUnlock(note: Notification) {
@@ -434,8 +434,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         os_log("Connection complete: %{public}@, success: %{bool}d", log: bluetoothLog, device, status == kIOReturnSuccess)
     }
     
-    private func waitToBeActuallyDisconnected(blueToothDevices devices: [IOBluetoothDevice], timeout: TimeInterval) {
-        let sleepInterval = TimeInterval.minimum(0.5, timeout)
+    private func waitToBeActuallyDisconnected(blueToothDevices devices: [IOBluetoothDevice], retryInterval: TimeInterval, timeout: TimeInterval) {
+        let sleepInterval = TimeInterval.minimum(retryInterval, timeout)
         let timeoutTime = Date() + timeout
         
         var timeoutReached: Bool = false
