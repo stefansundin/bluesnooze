@@ -176,8 +176,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBAction func handleMenuOpen(_ sender: NSMenu) {
         // Bluetooth
         disableBluetoothOnPowerDownMenuItem.state = boolToMenuState(v: disableBluetoothOnPowerDown)
-        
-        disconnectBluetoothDevicesOnPowerDownMenuItem.isEnabled = !disableBluetoothOnPowerDown
         disconnectBluetoothDevicesOnPowerDownMenuItem.state = boolToMenuState(v: disconnectBluetoothDevicesOnPowerDown)
         
         // Populate the Bluetooth device list
@@ -243,6 +241,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         disconnectBluetoothDevicesOnPowerDown = !disconnectBluetoothDevicesOnPowerDown
         if bluetoothActionOnScreenUnlock == "restore" {
             bluetoothActionOnScreenUnlock = "nothing"
+        }
+        
+        if disconnectBluetoothDevicesOnPowerDown {
+            disableBluetoothOnPowerDown = false
         }
     }
 
