@@ -88,29 +88,32 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Wi-Fi" autoenablesItems="NO" id="FLk-RB-qqS">
                         <items>
-                            <menuItem title="Turn off when sleeping" id="Yfg-ir-eaf">
+                            <menuItem title="Action when sleeping" enabled="NO" id="h72-KL-UG8">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                            </menuItem>
+                            <menuItem title="Turn off Wi-Fi" indentationLevel="1" id="Yfg-ir-eaf">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="disableWifiOnPowerDownClicked:" target="Voe-Tx-rLC" id="7gH-3d-PVL"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="dSG-j1-2Iy"/>
-                            <menuItem title="Action when unlocked:" enabled="NO" id="I3h-jC-DnK">
+                            <menuItem title="Action when unlocked" enabled="NO" id="I3h-jC-DnK">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
-                            <menuItem title="Restore previous state" id="1rl-rg-UXC">
+                            <menuItem title="Restore previous state" indentationLevel="1" id="1rl-rg-UXC">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="wifiActionOnScreenUnlockRestoreClicked:" target="Voe-Tx-rLC" id="EeB-cm-Qfu"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Always enable" id="hQ1-fS-R7M">
+                            <menuItem title="Always enable" indentationLevel="1" id="hQ1-fS-R7M">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="wifiActionOnScreenUnlockEnableClicked:" target="Voe-Tx-rLC" id="D98-uF-FDB"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Do nothing" id="Xld-ce-WJb">
+                            <menuItem title="Do nothing" indentationLevel="1" id="Xld-ce-WJb">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="wifiActionOnScreenUnlockNothingClicked:" target="Voe-Tx-rLC" id="4gn-DR-DLn"/>
