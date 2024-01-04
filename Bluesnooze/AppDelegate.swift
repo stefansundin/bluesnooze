@@ -167,14 +167,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             UserDefaults.standard.removeObject(forKey: "hideIcon")
             hideIconMenuItem.state = NSControl.StateValue.off
         } else {
-            // Show a tip on how to get the icon back
-            let alert = NSAlert()
-            alert.messageText = "Important information"
-            alert.informativeText = "Launch the app a second time to show the icon again."
-            alert.alertStyle = NSAlert.Style.informational
-            alert.addButton(withTitle: "OK")
-            alert.addButton(withTitle: "Cancel")
-            if alert.runModal() == NSApplication.ModalResponse.alertSecondButtonReturn {
+            if (!showHideIconWarning()) {
                 return
             }
             // Hide the icon
@@ -182,6 +175,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             hideIconMenuItem.state = NSControl.StateValue.on
             statusItem.statusBar?.removeStatusItem(statusItem)
         }
+    }
+
+    @IBAction func hideIconAgainClicked(_ sender: NSMenuItem) {
+        if (!UserDefaults.standard.bool(forKey: "hideIcon") && !showHideIconWarning()) {
+            return
+        }
+        statusItem.statusBar?.removeStatusItem(statusItem)
+    }
+
+    func showHideIconWarning() -> Bool {
+        // Show a tip on how to get the icon back
+        let alert = NSAlert()
+        alert.messageText = "Important information"
+        alert.informativeText = "Launch the app a second time to show the icon again."
+        alert.alertStyle = NSAlert.Style.informational
+        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: "Cancel")
+        return (alert.runModal() == NSApplication.ModalResponse.alertFirstButtonReturn)
     }
 
     @IBAction func websiteClicked(_ sender: NSMenuItem) {

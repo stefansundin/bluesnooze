@@ -19,7 +19,7 @@
                 <outlet property="bluetoothActionOnScreenUnlockRestore" destination="mBz-mB-SAw" id="dpV-qb-pVO"/>
                 <outlet property="disableBluetoothOnPowerDownMenuItem" destination="odn-aC-gVj" id="jsd-Lq-Mt0"/>
                 <outlet property="disableWifiOnPowerDownMenuItem" destination="Yfg-ir-eaf" id="CBH-RF-2zM"/>
-                <outlet property="hideIconMenuItem" destination="iTh-xc-apd" id="koh-Zf-4sN"/>
+                <outlet property="hideIconMenuItem" destination="xpg-jf-fbJ" id="lA2-PH-1Au"/>
                 <outlet property="launchAtLoginMenuItem" destination="I9E-pI-lLm" id="DFX-bS-N3m"/>
                 <outlet property="statusMenu" destination="AEO-aA-1fp" id="ueI-UR-7ba"/>
                 <outlet property="wifiActionOnScreenUnlockEnable" destination="hQ1-fS-R7M" id="Ia9-cl-mrb"/>
@@ -106,16 +106,33 @@
                         </items>
                     </menu>
                 </menuItem>
+                <menuItem title="Hide icon" id="5ru-bU-4fS">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <menu key="submenu" title="Hide icon" autoenablesItems="NO" id="VnK-Gs-NNh">
+                        <items>
+                            <menuItem title="Hide icon automatically" toolTip="This will cause the icon to be hidden automatically on every launch" id="xpg-jf-fbJ">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="hideIconClicked:" target="Voe-Tx-rLC" id="n3U-Ka-sxS"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Hide icon this session" toolTip="This will just hide the icon for this session and will not change the setting above" id="TFn-72-Y36">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="hideIconAgainClicked:" target="Voe-Tx-rLC" id="0YU-3K-0Y4"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="ho4-vc-wzs"/>
+                            <menuItem title="Launch the app a second time to show the icon again" enabled="NO" id="Drp-Od-5ev">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                            </menuItem>
+                        </items>
+                    </menu>
+                </menuItem>
                 <menuItem title="Launch at login" id="I9E-pI-lLm">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="launchAtLoginClicked:" target="Voe-Tx-rLC" id="ooK-DW-6Kn"/>
-                    </connections>
-                </menuItem>
-                <menuItem title="Hide icon" toolTip="Relaunch app to show icon" id="iTh-xc-apd">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="hideIconClicked:" target="Voe-Tx-rLC" id="rZI-1a-Hhe"/>
                     </connections>
                 </menuItem>
                 <menuItem title="Website" toolTip="Version 1.4" id="UNc-OX-MPq">
